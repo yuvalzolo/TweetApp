@@ -68,12 +68,10 @@ func DeleteUser(name string) error {
 
 func FollowUser(followerName string, followingName string) error {
 	follower, existsFollower := users[followerName]
-	if !existsFollower {
-		return errors.New("Follower Not Found")
-	}
 	following, existsFollowing := users[followingName]
-	if !existsFollowing {
-		return errors.New("Following Not Found")
+	err := HandleNotFound(existsFollower, existsFollowing)
+	if err != nil {
+		return err
 	}
 	if follower.Follows[followingName] {
 		return errors.New("user already follows this user")
@@ -86,11 +84,9 @@ func FollowUser(followerName string, followingName string) error {
 func UnfollowUser(followerName string, followingName string) error {
 	follower, existsFollower := users[followerName]
 	following, existsFollowing := users[followingName]
-	if !existsFollower {
-		return errors.New("Follower Not Found")
-	}
-	if !existsFollowing {
-		return errors.New("Following Not Found")
+	err := HandleNotFound(existsFollower, existsFollowing)
+	if err != nil {
+		return err
 	}
 	if !follower.Follows[followingName] {
 		return errors.New("user is not following this user")
@@ -107,7 +103,7 @@ func GetMutualFollowers(userName1 string, userName2 string) ([]*User, error) {
 	}
 	user2, error := GetUser(userName2)
 	if error != nil {
-		return nil, errors.New("Follower Not Found")
+		return nil, errors.New("Following Not Found")
 	}
 	var mutualFollowers []*User
 	for follower := range user1.FollowedBy {
@@ -133,4 +129,14 @@ func GetTopInfluencers(n int) ([]User, error) {
 		return len(userList[user1_index].FollowedBy) > len(userList[user2_index].FollowedBy)
 	})
 	return userList[:n], nil
+}
+
+func HandleNotFound(followerName bool, followingName bool) error {
+	if !followerName {
+		return errors.New("Follower Not Found")
+	}
+	if !followingName {
+		return errors.New("Following Not Found")
+	}
+	return nil
 }
