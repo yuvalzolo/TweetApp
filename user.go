@@ -86,8 +86,11 @@ func FollowUser(followerName string, followingName string) error {
 func UnfollowUser(followerName string, followingName string) error {
 	follower, existsFollower := users[followerName]
 	following, existsFollowing := users[followingName]
-	if !existsFollower || !existsFollowing {
-		return errors.New("one or both users not found")
+	if !existsFollower {
+		return errors.New("Follower Not Found")
+	}
+	if !existsFollowing {
+		return errors.New("Following Not Found")
 	}
 	if !follower.Follows[followingName] {
 		return errors.New("user is not following this user")
